@@ -425,7 +425,11 @@ export class World {
         lightPhase: (this.time * 1.35) % 1,
       });
       if (darkness > 0.15 && !h.leaving) {
-        b.disc(h.spotX, 0.1, h.spotZ, 5.0, rgb(0x4a4234), 0.55, 18);
+        // The pool of light on the ground is a soft glow sprite, never a flat disc: a
+        // hard-edged disc under the target reads as a solid rug and makes a car sitting
+        // in the beam look like it floats above the road (the street lamps below lost
+        // their discs for exactly this reason).
+        pushGlow(glow, h.spotX, 1.15, h.spotZ, 1, 0.96, 0.8, 13, 0.30 * darkness + 0.06);
         for (const t of [0.3, 0.55, 0.8]) {
           const gx = h.x + (h.spotX - h.x) * t, gz = h.z + (h.spotZ - h.z) * t;
           const gy = h.y + (0.4 - h.y) * t;
