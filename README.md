@@ -1,5 +1,11 @@
 # SIRENA HEAT — open-world crime in Sirena Bay
 
+[![make.fun bounty: gta6-01](https://make.fun/badge/gta6-01.svg)](https://make.fun/bounty/gta6-01)
+![make.fun rank](https://make.fun/badge/gta6-01/axiesc/sirena-heat-game/rank.svg)
+![make.fun reward](https://make.fun/badge/gta6-01/axiesc/sirena-heat-game/reward.svg)
+
+Submitted to the [make.fun gta6-01 bounty](https://make.fun/bounty/gta6-01).
+
 A 3D open-world crime game that runs in a desktop browser from static files — no build
 step, no libraries, no network requests. Hand-rolled WebGL2, a full day cycle, and a small
 coastal city that minds its own business until you start something.
