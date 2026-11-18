@@ -62,6 +62,26 @@ export function seedCrowd(world) {
     const ped = makePed(world, rng.range(-66, -14), 315 + rng.range(-3, 3));
     ped.state = 'stand';
   }
+  // Extra life around the water, seeded last so the crowd above keeps its shape: two more
+  // promenade walkers, anglers watching the boats from the north rail, and strollers
+  // walking the pier deck end to end on lanes that keep the cargo at the edges clear.
+  for (let k = 0; k < 2; k += 1) {
+    const ped = makePed(world, rng.range(30, 430), 458 + rng.range(-2, 3));
+    ped.route = { corners: [[16, 458], [444, 458], [444, 462], [16, 462]], next: rng.int(0, 3) };
+    const [tx, tz] = ped.route.corners[ped.route.next];
+    ped.targetX = tx; ped.targetZ = tz;
+  }
+  for (let k = 0; k < 2; k += 1) {
+    const ped = makePed(world, rng.range(-62, -48), 311.9);
+    ped.state = 'stand';
+    ped.yaw = Math.PI + rng.range(-0.25, 0.25); // facing the moored boats
+  }
+  for (let k = 0; k < 4; k += 1) {
+    const ped = makePed(world, rng.range(-64, -46), k % 2 ? 316.2 : 313.8);
+    ped.route = { corners: [[-67, 313.8], [-13, 313.8], [-13, 316.2], [-67, 316.2]], next: rng.int(0, 3) };
+    const [tx, tz] = ped.route.corners[ped.route.next];
+    ped.targetX = tx; ped.targetZ = tz;
+  }
 }
 
 /** A civilian bursting out of somewhere and running from a point — carjack victims, bail-outs. */

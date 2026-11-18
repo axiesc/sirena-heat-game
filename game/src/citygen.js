@@ -249,6 +249,44 @@ export function buildCity(batch, rng) {
   pushBoat(b, -30, 345, 0.4, rgb(0xf2f2f2));
   pushBoat(b, 60, 520, -0.3, rgb(0xd94f3d));
 
+  // -- Marina dressing: a second rank of moorings on each side, two yachts, the channel
+  // buoys, and the working clutter of a lived-in pier — cargo, drums, bollards, lamps.
+  // Everything here is placed with fixed numbers, never the shared rng: that stream goes
+  // on to seed the parked cars and the crowd, and a busier marina must not reshuffle the
+  // rest of the bay.
+  const mooredNorth = [[-48, 286, -0.1], [-35, 284, 0.08], [-22, 286, -0.05]];
+  mooredNorth.forEach(([bx, bz, yaw], k) => pushBoat(b, bx, bz, yaw, rgb(boatColors[(k + 2) % boatColors.length])));
+  const mooredSouth = [[-60, 334, 0.12], [-48, 337, -0.08], [-36, 334, 0.06]];
+  mooredSouth.forEach(([bx, bz, yaw], k) => pushBoat(b, bx, bz, yaw, rgb(boatColors[(k + 1) % boatColors.length])));
+  pushYacht(b, -67, 292, 0.1, rgb(0xf2f2f2));
+  pushYacht(b, -64, 344, -0.22, rgb(0x274b63));
+  for (const bx of [-84, -100, -116, -132]) {
+    pushBuoy(b, bx, 302, rgb(0xd94f3d)); // port hand, coming home
+    pushBuoy(b, bx, 328, rgb(0x3fae8a)); // starboard hand
+  }
+  // Bollards along both rails — they stand inside the rail colliders, so they need none.
+  const iron = rgb(0x2f363c);
+  for (const bx of [-66, -50, -34, -18]) b.cylinder(bx, 0.7, 310.9, 0.16, 0.13, 0.6, 6, iron, { cap: true });
+  for (const bx of [-58, -42, -26, -10]) b.cylinder(bx, 0.7, 319.1, 0.16, 0.13, 0.6, 6, iron, { cap: true });
+  // Cargo waiting on the deck and on the apron below. The middle of the pier stays clear
+  // for the walkway, and the south edge keeps a gap around the mission mark.
+  pushCrates(b, -24, 311.9, 0.73, addCollider, 0);
+  pushCrates(b, -52, 311.9, 0.73, addCollider, 1);
+  pushCrates(b, -64, 311.9, 0.73, addCollider, 2);
+  pushCrates(b, -12, 318.1, 0.73, addCollider, 1);
+  pushCrates(b, -56, 318.1, 0.73, addCollider, 0);
+  pushCrates(b, -66, 318.1, 0.73, addCollider, 2);
+  pushBarrels(b, -44, 311.9, 0.73, addCollider);
+  pushBarrels(b, -18, 318.1, 0.73, addCollider);
+  pushBarrels(b, -70, 317.9, 0.73, addCollider);
+  pushCrates(b, -24, 330, 0.02, addCollider, 2);
+  pushCrates(b, -46, 327, 0.02, addCollider, 0);
+  pushBarrels(b, -36, 331.5, 0.02, addCollider);
+  // Pier lamps, registered for their night glows like the street lamps above.
+  pushLamp(b, -22, 310.9, 0, 1); lamps.push([-22, 312.6]);
+  pushLamp(b, -46, 319.1, 0, -1); lamps.push([-46, 317.4]);
+  pushLamp(b, -68, 310.9, 0, 1); lamps.push([-68, 312.6]);
+
   // -- El Faro lighthouse on its rock point. ------------------------------------------------------
   const rock = rgb(0x6a6f72);
   b.cylinder(-20, -0.5, 462, 13, 9, 2.2, 9, rock, { cap: true });
@@ -272,6 +310,46 @@ function pushBoat(b, x, z, yaw, color) {
   b.box(x + 0.6, 1.6, z, 2.4, 0.9, 1.6, rgb(0xe8e2d2), { yaw });
   b.cylinder(x - 1.4, 1.2, z, 0.05, 0.05, 4.6, 5, rgb(0x9aa0a4), { cap: false });
   b.beam(x - 1.4, 5.6, z, x + 2.4, 1.6, z, 0.05, rgb(0xf0ead8));
+}
+
+/** A yacht: twice a boat's length, with a cabin, a glass band, a flybridge and a tall mast. */
+function pushYacht(b, x, z, yaw, color) {
+  const deckWhite = rgb(0xf7f4ec);
+  b.box(x, 0.45, z, 12.5, 1.1, 4.2, color, { yaw });
+  b.box(x, 1.25, z, 10.5, 0.55, 3.4, deckWhite, { yaw });
+  b.box(x + 0.8, 2.1, z, 5.2, 1.2, 2.6, deckWhite, { yaw });
+  b.box(x + 0.9, 2.35, z, 4.6, 0.5, 2.72, rgb(0x2a3c4c), { yaw });
+  b.box(x - 2.6, 3.05, z, 3.4, 0.7, 2.2, deckWhite, { yaw });
+  b.cylinder(x - 0.6, 1.5, z, 0.06, 0.06, 7.6, 5, rgb(0x9aa0a4), { cap: false });
+  b.beam(x - 0.6, 8.9, z, x + 3.4, 2.9, z, 0.05, rgb(0xf0ead8));
+  b.beam(x - 0.6, 8.9, z, x - 3.4, 3.5, z, 0.05, rgb(0xf0ead8));
+}
+
+/** A channel buoy riding the open water: drum, post and a small lit topmark. */
+function pushBuoy(b, x, z, color) {
+  b.cylinder(x, -0.5, z, 0.62, 0.42, 1.0, 7, color, { cap: true });
+  b.cylinder(x, 0.5, z, 0.1, 0.1, 0.7, 5, rgb(0x2f363c), { cap: false });
+  b.box(x, 1.35, z, 0.34, 0.3, 0.34, color, { emissive: 0.7 });
+}
+
+/** A stack of cargo crates standing on the ground at height y0; registers its own collider. */
+function pushCrates(b, x, z, y0, addCollider, variant) {
+  const cols = [0xb08954, 0x7d8a96, 0x9aa05a];
+  const c1 = rgb(cols[variant % 3]), c2 = rgb(cols[(variant + 1) % 3]);
+  b.box(x - 0.8, y0 + 0.55, z, 1.4, 1.1, 1.3, c1);
+  b.box(x + 0.75, y0 + 0.5, z + 0.15, 1.3, 1.0, 1.2, c2);
+  b.box(x - 0.15, y0 + 1.58, z + 0.05, 1.1, 0.95, 1.05, c2);
+  addCollider(x - 1.55, z - 0.8, x + 1.45, z + 0.8, y0 + 2.05);
+}
+
+/** A huddle of fuel drums standing on the ground at height y0; registers its own collider. */
+function pushBarrels(b, x, z, y0, addCollider) {
+  const cols = [0xa8574a, 0x2a6db0, 0x7d8a96];
+  const spots = [[-0.45, -0.2], [0.4, -0.35], [0.05, 0.45]];
+  spots.forEach(([dx, dz], i) => {
+    b.cylinder(x + dx, y0, z + dz, 0.34, 0.34, 0.95, 8, rgb(cols[i % 3]), { cap: true });
+  });
+  addCollider(x - 0.85, z - 0.8, x + 0.85, z + 0.85, y0 + 0.95);
 }
 
 /** The Plaza del Sol: fountain, palms, benches, café umbrellas — no buildings. */
